@@ -1,6 +1,6 @@
 <?php
 
-namespace uzhlaravel\TelegramSystem\Facades;
+namespace Uzhlaravel\TelegramSystem\Facades;
 
 use Illuminate\Support\Facades\Facade;
 

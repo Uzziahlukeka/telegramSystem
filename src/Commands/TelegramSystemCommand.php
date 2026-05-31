@@ -1,6 +1,6 @@
 <?php
 
-namespace uzhlaravel\TelegramSystem\Commands;
+namespace Uzhlaravel\TelegramSystem\Commands;
 
 use Illuminate\Console\Command;
 

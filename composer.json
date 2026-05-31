@@ -35,13 +35,13 @@
     },
     "autoload": {
         "psr-4": {
-            "uzhlaravel\\TelegramSystem\\": "src/",
-            "uzhlaravel\\TelegramSystem\\Database\\Factories\\": "database/factories/"
+            "Uzhlaravel\\TelegramSystem\\": "src/",
+            "Uzhlaravel\\TelegramSystem\\Database\\Factories\\": "database/factories/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "uzhlaravel\\TelegramSystem\\Tests\\": "tests/",
+            "Uzhlaravel\\TelegramSystem\\Tests\\": "tests/",
             "Workbench\\App\\": "workbench/app/"
         }
     },
@@ -63,10 +63,10 @@
     "extra": {
         "laravel": {
             "providers": [
-                "uzhlaravel\\TelegramSystem\\TelegramSystemServiceProvider"
+                "Uzhlaravel\\TelegramSystem\\TelegramSystemServiceProvider"
             ],
             "aliases": {
-                "TelegramSystem": "uzhlaravel\\TelegramSystem\\Facades\\TelegramSystem"
+                "TelegramSystem": "Uzhlaravel\\TelegramSystem\\Facades\\TelegramSystem"
             }
         }
     },

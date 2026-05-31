@@ -1,5 +1,5 @@
 <?php
 
-namespace uzhlaravel\TelegramSystem;
+namespace Uzhlaravel\TelegramSystem;
 
 class TelegramSystem {}

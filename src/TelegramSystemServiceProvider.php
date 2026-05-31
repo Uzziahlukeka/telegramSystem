@@ -1,6 +1,6 @@
 <?php
 
-namespace uzhlaravel\TelegramSystem;
+namespace Uzhlaravel\TelegramSystem;
 
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;

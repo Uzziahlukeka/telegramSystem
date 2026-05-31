@@ -1,6 +1,6 @@
 <?php
 
-namespace uzhlaravel\TelegramSystem\Database\Factories;
+namespace Uzhlaravel\TelegramSystem\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 
