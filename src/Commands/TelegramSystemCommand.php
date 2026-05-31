@@ -1,12 +1,12 @@
 <?php
 
-namespace VendorName\Skeleton\Commands;
+namespace uzhlaravel\TelegramSystem\Commands;
 
 use Illuminate\Console\Command;
 
-class SkeletonCommand extends Command
+class TelegramSystemCommand extends Command
 {
-    public $signature = 'skeleton';
+    public $signature = 'telegramsystem';
 
     public $description = 'My command';
 

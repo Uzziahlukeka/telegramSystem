@@ -1,12 +1,12 @@
 <?php
 
-namespace VendorName\Skeleton;
+namespace uzhlaravel\TelegramSystem;
 
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
-use VendorName\Skeleton\Commands\SkeletonCommand;
+use uzhlaravel\TelegramSystem\Commands\TelegramSystemCommand;
 
-class SkeletonServiceProvider extends PackageServiceProvider
+class TelegramSystemServiceProvider extends PackageServiceProvider
 {
     public function configurePackage(Package $package): void
     {
@@ -16,10 +16,10 @@ class SkeletonServiceProvider extends PackageServiceProvider
          * More info: https://github.com/spatie/laravel-package-tools
          */
         $package
-            ->name('skeleton')
+            ->name('telegramsystem')
             ->hasConfigFile()
             ->hasViews()
-            ->hasMigration('create_migration_table_name_table')
-            ->hasCommand(SkeletonCommand::class);
+            ->hasMigration('create_telegramsystem_table')
+            ->hasCommand(TelegramSystemCommand::class);
     }
 }

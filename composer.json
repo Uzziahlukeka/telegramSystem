@@ -1,17 +1,17 @@
 {
-    "name": ":vendor_slug/:package_slug",
-    "description": ":package_description",
+    "name": "uzhlaravel/telegramsystem",
+    "description": "Manange and monitor everything via telegram",
     "keywords": [
-        ":vendor_name",
+        "uzhlaravel",
         "laravel",
-        ":package_slug"
+        "telegramsystem"
     ],
-    "homepage": "https://github.com/:vendor_slug/:package_slug",
+    "homepage": "https://github.com/uzhlaravel/telegramsystem",
     "license": "MIT",
     "authors": [
         {
-            "name": ":author_name",
-            "email": "author@domain.com",
+            "name": "Uzziah Lukeka",
+            "email": "contact@uzziahlukeka.tech",
             "role": "Developer"
         }
     ],
@@ -35,13 +35,13 @@
     },
     "autoload": {
         "psr-4": {
-            "VendorName\\Skeleton\\": "src/",
-            "VendorName\\Skeleton\\Database\\Factories\\": "database/factories/"
+            "uzhlaravel\\TelegramSystem\\": "src/",
+            "uzhlaravel\\TelegramSystem\\Database\\Factories\\": "database/factories/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "VendorName\\Skeleton\\Tests\\": "tests/",
+            "uzhlaravel\\TelegramSystem\\Tests\\": "tests/",
             "Workbench\\App\\": "workbench/app/"
         }
     },
@@ -63,10 +63,10 @@
     "extra": {
         "laravel": {
             "providers": [
-                "VendorName\\Skeleton\\SkeletonServiceProvider"
+                "uzhlaravel\\TelegramSystem\\TelegramSystemServiceProvider"
             ],
             "aliases": {
-                "Skeleton": "VendorName\\Skeleton\\Facades\\Skeleton"
+                "TelegramSystem": "uzhlaravel\\TelegramSystem\\Facades\\TelegramSystem"
             }
         }
     },
