@@ -90,7 +90,10 @@ class TestCase extends Orchestra
 
     private function runPackageMigrations(): void
     {
-        $migration = include __DIR__.'/../database/migrations/create_telegramsystem_tickets_table.php.stub';
-        $migration->up();
+        $tickets = include __DIR__.'/../database/migrations/create_telegramsystem_tickets_table.php.stub';
+        $tickets->up();
+
+        $messages = include __DIR__.'/../database/migrations/create_telegramsystem_ticket_messages_table.php.stub';
+        $messages->up();
     }
 }

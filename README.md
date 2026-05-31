@@ -52,6 +52,9 @@ forum-topic creation, multi-bot routing and the whole ticket domain.
   a `getUpdates` long-polling daemon for local development.
 - 🧵 **Forum topics** — one topic per ticket via `createForumTopic`, with optional
   close/reopen sync, and graceful fallback to the main chat.
+- 💬 **Web chat widget** — a website-facing Livewire/Volt widget whose visitor
+  conversations are mirrored to Telegram and whose agent replies flow back, with
+  the full conversation persisted as `TicketMessage` rows.
 - ♻️ **Reuses `telegramlogs`** — the default bot's simple outbound sends delegate
   to `telegramlogs`; named bots use this package's typed HTTP client.
 
@@ -229,6 +232,65 @@ per ticket via `createForumTopic` and its `message_thread_id` is stored. Ticket
 messages are routed into that topic, and (with `topics.sync_status`) the topic is
 closed/reopened in sync with the ticket. If the group is **not** a forum, the
 package degrades gracefully and falls back to the main chat.
+
+### Web chat widget
+
+A website-facing chat widget lets visitors talk to your team without leaving the
+site. Each browser conversation becomes a **web ticket** mirrored into a Telegram
+group, and replies an agent posts in Telegram flow straight back into the widget.
+
+How it works:
+
+- A visitor's first message opens a web ticket (`source = web`, no Telegram owner;
+  the browser is tracked by a session token) and posts a header + the message into
+  the configured bot's chat (and topic, if set).
+- Every line of the conversation is persisted as a `TicketMessage`
+  (`header` / `from_user` / `from_agent`) so the widget can replay it — Telegram
+  keeps no copy the website can read back.
+- When an agent **replies** to one of the ticket's group messages, the webhook
+  links it back to the right ticket and records it as a `from_agent` message, which
+  the widget polls for and shows.
+
+Configure which bot the web chat routes through (its `chat_id` is the support
+group, its `topic_id` the optional topic):
+
+```php
+// config/telegramsystem.php
+'web_chat' => [
+    'enabled' => env('TELEGRAM_SYSTEM_WEB_CHAT_ENABLED', true),
+    'bot'     => env('TELEGRAM_SYSTEM_WEB_CHAT_BOT', 'support'),
+],
+```
+
+Drive it from your own code through the `WebChatService` (also reachable as
+`TelegramSystem::webChat()`):
+
+```php
+use TelegramSystem;
+
+// Post a visitor message (opens the ticket on first contact):
+$ticket = TelegramSystem::webChat()->send(
+    sessionToken: $token,   // a per-browser token you persist in the session
+    name: 'Ada Lovelace',
+    email: 'ada@example.com',
+    message: 'Hi, I need a hand with billing.',
+);
+
+// Replay the conversation for the browser:
+$lines = TelegramSystem::webChat()->conversation($ticket);
+```
+
+A ready-made **Livewire/Volt widget** ships with the package. Publish it and mount
+it (or copy it into your Volt component directory):
+
+```bash
+php artisan vendor:publish --tag=telegramsystem-views
+# resources/views/vendor/telegramsystem/web-chat.blade.php
+```
+
+The widget handles the session token, honeypot + rate limiting, validation and
+5-second polling for new agent replies; all Telegram I/O is delegated to
+`WebChatService`.
 
 ### How notifications flow through telegramlogs
 

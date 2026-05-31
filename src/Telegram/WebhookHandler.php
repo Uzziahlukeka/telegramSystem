@@ -14,11 +14,14 @@ use Uzhlaravel\TelegramSystem\Exceptions\TelegramApiException;
 use Uzhlaravel\TelegramSystem\Exceptions\UnauthorizedTicketAccessException;
 use Uzhlaravel\TelegramSystem\Tickets\Ticket;
 use Uzhlaravel\TelegramSystem\Tickets\TicketPolicy;
+use Uzhlaravel\TelegramSystem\WebChat\WebChatService;
 
 /**
  * Turns an inbound {@see UpdateData} (from a webhook or long polling) into
  * ticket-domain actions for a specific bot:
  *
+ *  - A reply to a web-chat ticket's group message is captured back into the
+ *    web widget as an agent reply.
  *  - A non-admin message with no matching ticket opens one.
  *  - A reply to an existing ticket is authorized (policy), and the first
  *    eligible non-admin replier becomes the assigned agent.
@@ -34,6 +37,7 @@ final class WebhookHandler
         private readonly TicketPolicy $policy,
         private readonly CreateTicketAction $createTicket,
         private readonly AssignTicketAction $assignTicket,
+        private readonly WebChatService $webChat,
         private readonly Config $config,
     ) {}
 
@@ -52,6 +56,14 @@ final class WebhookHandler
         $fromId = $message->fromId;
 
         if ($fromId === null) {
+            return;
+        }
+
+        // Web chat: an agent replying to a web ticket's group message threads
+        // the answer straight back to the browser. Handled before the Telegram
+        // ticket flow because web tickets carry no forum topic to resolve.
+        if ($message->replyToMessageId !== null
+            && $this->webChat->captureAgentReply($message->replyToMessageId, $message) !== null) {
             return;
         }
 

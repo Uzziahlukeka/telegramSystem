@@ -12,6 +12,7 @@ use Uzhlaravel\TelegramSystem\Contracts\TicketRepositoryInterface;
 use Uzhlaravel\TelegramSystem\Telegram\MultiBotManager;
 use Uzhlaravel\TelegramSystem\Telegram\TelegramlogsBridge;
 use Uzhlaravel\TelegramSystem\Tickets\Ticket;
+use Uzhlaravel\TelegramSystem\WebChat\WebChatService;
 
 /**
  * The public entry point behind the TelegramSystem facade. It is a thin
@@ -27,11 +28,20 @@ final class TelegramSystem
         private readonly AssignTicketAction $assignTicket,
         private readonly CloseTicketAction $closeTicket,
         private readonly TelegramlogsBridge $telegramlogs,
+        private readonly WebChatService $webChat,
     ) {}
 
     public function bots(): MultiBotManager
     {
         return $this->bots;
+    }
+
+    /**
+     * The web-chat widget service (open web tickets, replay agent replies).
+     */
+    public function webChat(): WebChatService
+    {
+        return $this->webChat;
     }
 
     /**

@@ -16,17 +16,29 @@ return new class extends Migration
             // Which configured bot owns this ticket (for inbound routing).
             $table->string('bot')->default('default');
 
+            // Where the ticket originated: "telegram" (default) or "web".
+            $table->string('source')->default('telegram');
+
+            // Human-friendly reference shown in Telegram and the web widget.
+            $table->string('ticket_number')->nullable()->unique();
+
             // Telegram chat the ticket lives in, and (optionally) its forum topic.
             $table->string('chat_id');
             $table->unsignedBigInteger('message_thread_id')->nullable();
 
-            // The non-admin contact who opened the ticket.
-            $table->unsignedBigInteger('owner_id');
+            // The non-admin contact who opened the ticket. Null for web tickets,
+            // whose contact has no Telegram identity.
+            $table->unsignedBigInteger('owner_id')->nullable();
             $table->string('owner_username')->nullable();
 
             // The first non-admin replier, assigned atomically.
             $table->unsignedBigInteger('agent_id')->nullable();
             $table->string('agent_username')->nullable();
+
+            // Web-chat session correlation: the browser token and an optional
+            // reply-to email captured from the website visitor.
+            $table->string('web_session_token')->nullable();
+            $table->string('web_email')->nullable();
 
             $table->string('subject')->nullable();
             $table->string('status')->default('open');
@@ -36,6 +48,7 @@ return new class extends Migration
 
             $table->index(['bot', 'chat_id', 'message_thread_id']);
             $table->index(['bot', 'chat_id', 'owner_id']);
+            $table->index(['source', 'web_session_token']);
             $table->index('status');
         });
     }
