@@ -26,6 +26,7 @@ use Uzhlaravel\TelegramSystem\Telegram\TelegramlogsBridge;
 use Uzhlaravel\TelegramSystem\Telegram\TopicManager;
 use Uzhlaravel\TelegramSystem\Telegram\WebhookHandler;
 use Uzhlaravel\TelegramSystem\Tickets\TicketPolicy;
+use Uzhlaravel\TelegramSystem\WebChat\WebChatService;
 
 class TelegramSystemServiceProvider extends PackageServiceProvider
 {
@@ -52,6 +53,7 @@ class TelegramSystemServiceProvider extends PackageServiceProvider
             ->hasConfigFile()
             ->hasViews()
             ->hasMigration('create_telegramsystem_tickets_table')
+            ->hasMigration('create_telegramsystem_ticket_messages_table')
             ->hasRoute('webhook')
             ->hasCommands([
                 SetWebhookCommand::class,
@@ -67,6 +69,7 @@ class TelegramSystemServiceProvider extends PackageServiceProvider
         $this->app->singleton(MultiBotManager::class);
         $this->app->singleton(TopicManager::class);
         $this->app->singleton(WebhookHandler::class);
+        $this->app->singleton(WebChatService::class);
         $this->app->singleton(TelegramSystem::class);
 
         // Bridge that re-uses telegramlogs for logging, DM and activity.

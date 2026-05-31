@@ -18,6 +18,7 @@ final readonly class TelegramMessageData
         public ?string $fromUsername,
         public bool $fromIsBot,
         public ?int $messageThreadId,
+        public ?int $replyToMessageId,
         public ?string $text,
         public bool $isTopicMessage,
         public bool $isForumGroup,
@@ -34,6 +35,9 @@ final readonly class TelegramMessageData
         /** @var array<string, mixed> $from */
         $from = is_array($payload['from'] ?? null) ? $payload['from'] : [];
 
+        /** @var array<string, mixed> $replyTo */
+        $replyTo = is_array($payload['reply_to_message'] ?? null) ? $payload['reply_to_message'] : [];
+
         return new self(
             messageId: (int) ($payload['message_id'] ?? 0),
             chatId: (string) ($chat['id'] ?? ''),
@@ -42,6 +46,7 @@ final readonly class TelegramMessageData
             fromUsername: isset($from['username']) ? (string) $from['username'] : null,
             fromIsBot: (bool) ($from['is_bot'] ?? false),
             messageThreadId: isset($payload['message_thread_id']) ? (int) $payload['message_thread_id'] : null,
+            replyToMessageId: isset($replyTo['message_id']) ? (int) $replyTo['message_id'] : null,
             text: isset($payload['text']) ? (string) $payload['text'] : null,
             isTopicMessage: (bool) ($payload['is_topic_message'] ?? false),
             isForumGroup: (bool) ($chat['is_forum'] ?? false),

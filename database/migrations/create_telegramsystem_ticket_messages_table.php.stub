@@ -1,0 +1,45 @@
+<?php
+
+declare(strict_types=1);
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create($this->table(), function (Blueprint $table): void {
+            $table->id();
+
+            // The ticket this message belongs to.
+            $table->unsignedBigInteger('ticket_id');
+
+            // The id of the corresponding message inside the Telegram group, so
+            // inbound agent replies can be threaded back to the right ticket.
+            $table->unsignedBigInteger('group_message_id')->nullable();
+
+            // header | from_user | from_agent — who the message is from.
+            $table->string('direction');
+
+            // The plain-text body. Null for the header bookkeeping row.
+            $table->text('content')->nullable();
+
+            $table->timestamps();
+
+            $table->index(['ticket_id', 'direction']);
+            $table->index('group_message_id');
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists($this->table());
+    }
+
+    private function table(): string
+    {
+        return (string) config('telegramsystem.messages_table', 'telegramsystem_ticket_messages');
+    }
+};

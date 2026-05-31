@@ -52,4 +52,15 @@ final class TicketFactory extends Factory
     {
         return $this->state(fn (): array => ['status' => TicketStatus::Closed]);
     }
+
+    public function web(?string $token = null, ?string $email = null): self
+    {
+        return $this->state(fn (): array => [
+            'source' => Ticket::SOURCE_WEB,
+            'message_thread_id' => null,
+            'owner_id' => null,
+            'web_session_token' => $token ?? $this->faker->uuid(),
+            'web_email' => $email,
+        ]);
+    }
 }

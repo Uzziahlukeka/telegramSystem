@@ -151,8 +151,27 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Web chat widget
+    |--------------------------------------------------------------------------
+    |
+    | The optional website-facing chat widget. Visitor messages are mirrored
+    | into the configured bot's chat (and topic, when set) as a threaded ticket,
+    | and agent replies posted in Telegram flow back into the widget.
+    |
+    |   bot - which configured bot (and therefore which chat_id / topic_id)
+    |         the web chat routes through. Defaults to the "support" bot.
+    |
+    */
+    'web_chat' => [
+        'enabled' => (bool) env('TELEGRAM_SYSTEM_WEB_CHAT_ENABLED', true),
+        'bot' => env('TELEGRAM_SYSTEM_WEB_CHAT_BOT', 'support'),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Database
     |--------------------------------------------------------------------------
     */
     'table' => env('TELEGRAM_SYSTEM_TABLE', 'telegramsystem_tickets'),
+    'messages_table' => env('TELEGRAM_SYSTEM_MESSAGES_TABLE', 'telegramsystem_ticket_messages'),
 ];
