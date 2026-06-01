@@ -22,6 +22,7 @@ use Uzhlaravel\TelegramSystem\Listeners\SendTicketCreatedNotification;
 use Uzhlaravel\TelegramSystem\Listeners\SendTicketReopenedNotification;
 use Uzhlaravel\TelegramSystem\Repositories\EloquentTicketRepository;
 use Uzhlaravel\TelegramSystem\Telegram\MultiBotManager;
+use Uzhlaravel\TelegramSystem\Telegram\SupportBridge;
 use Uzhlaravel\TelegramSystem\Telegram\TelegramlogsBridge;
 use Uzhlaravel\TelegramSystem\Telegram\TopicManager;
 use Uzhlaravel\TelegramSystem\Telegram\WebhookHandler;
@@ -68,6 +69,7 @@ class TelegramSystemServiceProvider extends PackageServiceProvider
         // Multi-bot manager + Telegram client strategy (shared singleton cache).
         $this->app->singleton(MultiBotManager::class);
         $this->app->singleton(TopicManager::class);
+        $this->app->singleton(SupportBridge::class);
         $this->app->singleton(WebhookHandler::class);
         $this->app->singleton(WebChatService::class);
         $this->app->singleton(TelegramSystem::class);

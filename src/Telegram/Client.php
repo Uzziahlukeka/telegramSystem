@@ -88,6 +88,25 @@ final class Client
         return true;
     }
 
+    /**
+     * Copy a message from one chat to another without the "Forwarded from"
+     * label. This is the primitive behind the DM support bridge: a contact's
+     * message is copied into the support group, and an agent's reply is copied
+     * back into the contact's private chat.
+     *
+     * @param  array<string, mixed>  $options  Extra Telegram parameters
+     *                                         (reply_to_message_id, caption, …).
+     * @return array<string, mixed>
+     */
+    public function copyMessage(string $toChatId, string $fromChatId, int $messageId, array $options = []): array
+    {
+        return $this->call('copyMessage', array_merge([
+            'chat_id' => $toChatId,
+            'from_chat_id' => $fromChatId,
+            'message_id' => $messageId,
+        ], $options));
+    }
+
     public function setWebhook(string $url, ?string $secretToken = null, ?array $allowedUpdates = null): bool
     {
         $payload = ['url' => $url];
@@ -110,6 +129,16 @@ final class Client
         $this->call('deleteWebhook', ['drop_pending_updates' => $dropPendingUpdates]);
 
         return true;
+    }
+
+    /**
+     * Current webhook registration details (url, pending update count, …).
+     *
+     * @return array<string, mixed>
+     */
+    public function getWebhookInfo(): array
+    {
+        return $this->call('getWebhookInfo', []);
     }
 
     /**

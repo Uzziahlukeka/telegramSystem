@@ -52,6 +52,11 @@ forum-topic creation, multi-bot routing and the whole ticket domain.
   a `getUpdates` long-polling daemon for local development.
 - 🧵 **Forum topics** — one topic per ticket via `createForumTopic`, with optional
   close/reopen sync, and graceful fallback to the main chat.
+- 🌉 **DM support bridge** — a turnkey "DM the bot, talk to a human" flow that
+  needs **no** forum-enabled group: a contact's private messages are copied into
+  your support group beneath a per-ticket header, agents reply right there, and
+  the reply is copied straight back to the contact (`/start`, `/close` and
+  receipts included). This is the bespoke controller you keep re-writing, built in.
 - 💬 **Web chat widget** — a website-facing Livewire/Volt widget whose visitor
   conversations are mirrored to Telegram and whose agent replies flow back, with
   the full conversation persisted as `TicketMessage` rows.
@@ -232,6 +237,69 @@ per ticket via `createForumTopic` and its `message_thread_id` is stored. Ticket
 messages are routed into that topic, and (with `topics.sync_status`) the topic is
 closed/reopened in sync with the ticket. If the group is **not** a forum, the
 package degrades gracefully and falls back to the main chat.
+
+### DM support bridge
+
+The most common Telegram support pattern — *a customer DMs your bot, your team
+answers from a shared group* — usually ends up as a few hundred lines of bespoke
+webhook controller in every project. That controller now lives in the package.
+
+It needs **no forum-enabled supergroup**: each contact's conversation is anchored
+by a compact "header" message in your support group, and Telegram's native reply
+threading does the rest.
+
+How it works:
+
+- A contact **direct-messages** the bot. `/start` returns a configurable welcome.
+  Any other message opens (or continues) a Telegram ticket (`source = telegram`),
+  posts a header into your support group, and **copies the contact's message
+  beneath it**. The contact gets a receipt with their ticket reference.
+- An agent **replies** (a native Telegram reply) to any of that ticket's group
+  messages; the reply is **copied straight back into the contact's private chat**.
+  The first responder is recorded as the ticket's agent (atomic, race-safe).
+- A reply of **`/close`** closes the ticket, tells the contact it was resolved,
+  and confirms in the group.
+
+Configure which bot the bridge routes through (its `chat_id` is the support group)
+and override any of the message templates without touching code:
+
+```php
+// config/telegramsystem.php
+'support_bridge' => [
+    'enabled'    => env('TELEGRAM_SYSTEM_SUPPORT_BRIDGE_ENABLED', true),
+    'bot'        => env('TELEGRAM_SYSTEM_SUPPORT_BRIDGE_BOT', 'support'),
+    'parse_mode' => env('TELEGRAM_SYSTEM_SUPPORT_BRIDGE_PARSE_MODE', 'HTML'),
+],
+
+'messages' => [
+    // Placeholders: :ticket, :name, :user
+    'welcome'  => '👋 <b>Welcome to support!</b> …',
+    'received' => '✅ Message received! <i>Reference: :ticket</i>',
+    'closed'   => '🔒 Your request <i>:ticket</i> has been resolved and closed.',
+    'header'   => "🎫 <b>Ticket :ticket</b>\n👤 :user\n─────────────────",
+    // … group_closed, already_closed, reply_to_closed
+],
+```
+
+Then point Telegram's webhook at the bridge bot and you are done — the inbound
+controller, ticket bookkeeping and copy-threading are all handled:
+
+```bash
+php artisan telegramsystem:set-webhook support
+```
+
+It is **purely additive**: the forum-topic flow and the web-chat widget below are
+untouched, and a single support group can host web *and* Telegram tickets at once
+(both use the same header-threading convention). Drive it directly when you need
+to — `TelegramSystem::supportBridge()` exposes `handleContactMessage()` and
+`handleAgentReply()` — though the webhook wires it for you out of the box.
+
+> **Replacing a hand-written controller?** Delete your `TelegramBotService` /
+> `TelegramWebhookController`, map your old env vars onto a configured bot
+> (`token` → `TELEGRAM_*_BOT_TOKEN`, support group → `chat_id`), point the route at
+> `telegramsystem:set-webhook`, and translate your strings via the `messages`
+> templates above. The DM ↔ group copy-bridge, `/start`, `/close` and receipts are
+> all covered.
 
 ### Web chat widget
 
