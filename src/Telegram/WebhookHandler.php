@@ -20,8 +20,12 @@ use Uzhlaravel\TelegramSystem\WebChat\WebChatService;
  * Turns an inbound {@see UpdateData} (from a webhook or long polling) into
  * ticket-domain actions for a specific bot:
  *
+ *  - A private-chat message on the support-bridge bot opens/continues a
+ *    direct-message ticket (no forum topic required).
  *  - A reply to a web-chat ticket's group message is captured back into the
  *    web widget as an agent reply.
+ *  - A reply to a Telegram DM-ticket's group message is copied back into the
+ *    contact's private chat (the support-bridge agent flow).
  *  - A non-admin message with no matching ticket opens one.
  *  - A reply to an existing ticket is authorized (policy), and the first
  *    eligible non-admin replier becomes the assigned agent.
@@ -38,6 +42,7 @@ final class WebhookHandler
         private readonly CreateTicketAction $createTicket,
         private readonly AssignTicketAction $assignTicket,
         private readonly WebChatService $webChat,
+        private readonly SupportBridge $bridge,
         private readonly Config $config,
     ) {}
 
@@ -59,11 +64,31 @@ final class WebhookHandler
             return;
         }
 
+        $bridgeActive = $this->bridge->enabled() && $bot === $this->bridge->bot();
+
+        // Support bridge: a contact direct-messaging the bot opens/continues a
+        // ticket without any forum topic. Private chats never reach the
+        // forum-topic flow, so this is purely additive.
+        if ($bridgeActive && $message->chatType === 'private') {
+            $this->bridge->handleContactMessage($bot, $message);
+
+            return;
+        }
+
         // Web chat: an agent replying to a web ticket's group message threads
         // the answer straight back to the browser. Handled before the Telegram
         // ticket flow because web tickets carry no forum topic to resolve.
         if ($message->replyToMessageId !== null
             && $this->webChat->captureAgentReply($message->replyToMessageId, $message) !== null) {
+            return;
+        }
+
+        // Support bridge: an agent replying to a Telegram DM-ticket's group
+        // message is copied straight back into the contact's private chat
+        // (and "/close" closes the ticket).
+        if ($bridgeActive
+            && $message->replyToMessageId !== null
+            && $this->bridge->handleAgentReply($bot, $message)) {
             return;
         }
 

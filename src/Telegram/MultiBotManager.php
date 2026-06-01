@@ -136,6 +136,25 @@ final class MultiBotManager
         return $this->client($bot)->sendMessage($chatId, $text, $options);
     }
 
+    /**
+     * Copy a message between chats through a bot's client.
+     *
+     * Unlike {@see sendMessage()} this never delegates to telegramlogs (which
+     * exposes no copy primitive); it always uses this package's HTTP client.
+     *
+     * @param  array<string, mixed>  $options
+     * @return array<string, mixed>
+     */
+    public function copyMessage(
+        ?string $bot,
+        string $toChatId,
+        string $fromChatId,
+        int $messageId,
+        array $options = [],
+    ): array {
+        return $this->client($bot)->copyMessage($toChatId, $fromChatId, $messageId, $options);
+    }
+
     private function makeClient(string $bot): Client
     {
         $config = $this->config($bot);

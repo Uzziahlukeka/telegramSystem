@@ -10,6 +10,7 @@ use Uzhlaravel\TelegramSystem\Actions\CloseTicketAction;
 use Uzhlaravel\TelegramSystem\Actions\CreateTicketAction;
 use Uzhlaravel\TelegramSystem\Contracts\TicketRepositoryInterface;
 use Uzhlaravel\TelegramSystem\Telegram\MultiBotManager;
+use Uzhlaravel\TelegramSystem\Telegram\SupportBridge;
 use Uzhlaravel\TelegramSystem\Telegram\TelegramlogsBridge;
 use Uzhlaravel\TelegramSystem\Tickets\Ticket;
 use Uzhlaravel\TelegramSystem\WebChat\WebChatService;
@@ -29,6 +30,7 @@ final class TelegramSystem
         private readonly CloseTicketAction $closeTicket,
         private readonly TelegramlogsBridge $telegramlogs,
         private readonly WebChatService $webChat,
+        private readonly SupportBridge $supportBridge,
     ) {}
 
     public function bots(): MultiBotManager
@@ -42,6 +44,14 @@ final class TelegramSystem
     public function webChat(): WebChatService
     {
         return $this->webChat;
+    }
+
+    /**
+     * The direct-message support bridge (DM-the-bot ↔ support-group tickets).
+     */
+    public function supportBridge(): SupportBridge
+    {
+        return $this->supportBridge;
     }
 
     /**

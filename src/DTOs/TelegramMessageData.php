@@ -22,6 +22,8 @@ final readonly class TelegramMessageData
         public ?string $text,
         public bool $isTopicMessage,
         public bool $isForumGroup,
+        public ?string $fromFirstName = null,
+        public ?string $fromLastName = null,
     ) {}
 
     /**
@@ -47,14 +49,30 @@ final readonly class TelegramMessageData
             fromIsBot: (bool) ($from['is_bot'] ?? false),
             messageThreadId: isset($payload['message_thread_id']) ? (int) $payload['message_thread_id'] : null,
             replyToMessageId: isset($replyTo['message_id']) ? (int) $replyTo['message_id'] : null,
-            text: isset($payload['text']) ? (string) $payload['text'] : null,
+            // Fall back to a media caption so photo/document replies still carry
+            // a body the bridge can act on (command detection, web replay).
+            text: isset($payload['text'])
+                ? (string) $payload['text']
+                : (isset($payload['caption']) ? (string) $payload['caption'] : null),
             isTopicMessage: (bool) ($payload['is_topic_message'] ?? false),
             isForumGroup: (bool) ($chat['is_forum'] ?? false),
+            fromFirstName: isset($from['first_name']) ? (string) $from['first_name'] : null,
+            fromLastName: isset($from['last_name']) ? (string) $from['last_name'] : null,
         );
     }
 
     public function hasText(): bool
     {
         return $this->text !== null && trim($this->text) !== '';
+    }
+
+    /**
+     * The sender's display name from first/last name, when available.
+     */
+    public function displayName(): ?string
+    {
+        $name = trim(($this->fromFirstName ?? '').' '.($this->fromLastName ?? ''));
+
+        return $name !== '' ? $name : null;
     }
 }

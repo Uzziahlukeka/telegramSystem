@@ -169,6 +169,69 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Direct-message support bridge
+    |--------------------------------------------------------------------------
+    |
+    | A turnkey "DM the bot, talk to a human" support flow that does NOT rely on
+    | forum topics, so it works in any group:
+    |
+    |   - A contact direct-messages the bot. A compact header is posted into the
+    |     support group and the contact's message is copied beneath it.
+    |   - An agent replies to one of those group messages; the reply is copied
+    |     straight back into the contact's private chat.
+    |   - "/close" (sent as a group reply) closes the ticket and notifies the
+    |     contact.
+    |
+    | This mirrors the bespoke controller most apps end up writing by hand. It is
+    | purely additive: the forum-topic flow and web-chat widget are untouched.
+    |
+    |   bot - which configured bot (its chat_id is the support group) the bridge
+    |         routes through. Defaults to the "support" bot.
+    |
+    */
+    'support_bridge' => [
+        'enabled' => (bool) env('TELEGRAM_SYSTEM_SUPPORT_BRIDGE_ENABLED', true),
+        'bot' => env('TELEGRAM_SYSTEM_SUPPORT_BRIDGE_BOT', 'support'),
+
+        /*
+         | Outbound copy-thread parse mode applied to the header / system notes
+         | the bridge sends (the contact's own messages are copied verbatim).
+         */
+        'parse_mode' => env('TELEGRAM_SYSTEM_SUPPORT_BRIDGE_PARSE_MODE', 'HTML'),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Message templates
+    |--------------------------------------------------------------------------
+    |
+    | Templates used by the DM support bridge. Override any of them (e.g. to
+    | translate, or to drop your brand in) without touching code. Placeholders:
+    |
+    |   :ticket - the human-friendly ticket reference (e.g. T-7F3A9C)
+    |   :name   - the contact's display name
+    |   :user   - "@username" when known, otherwise the bold display name
+    |
+    */
+    'messages' => [
+        'welcome' => env('TELEGRAM_SYSTEM_MSG_WELCOME',
+            "👋 <b>Welcome to support!</b>\n\nSend us your question or describe your issue and our team will get back to you shortly."),
+        'received' => env('TELEGRAM_SYSTEM_MSG_RECEIVED',
+            "✅ Message received! Our team will get back to you soon.\n<i>Reference: :ticket</i>"),
+        'closed' => env('TELEGRAM_SYSTEM_MSG_CLOSED',
+            "🔒 Your request <i>:ticket</i> has been resolved and closed.\nThank you for contacting us!"),
+        'header' => env('TELEGRAM_SYSTEM_MSG_HEADER',
+            "🎫 <b>Ticket :ticket</b>\n👤 :user\n─────────────────"),
+        'group_closed' => env('TELEGRAM_SYSTEM_MSG_GROUP_CLOSED',
+            '✅ Ticket :ticket closed.'),
+        'already_closed' => env('TELEGRAM_SYSTEM_MSG_ALREADY_CLOSED',
+            '⚠️ This ticket is already closed.'),
+        'reply_to_closed' => env('TELEGRAM_SYSTEM_MSG_REPLY_TO_CLOSED',
+            '⚠️ This ticket is closed. Nothing was sent.'),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Database
     |--------------------------------------------------------------------------
     */
